@@ -15,9 +15,9 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 @app.route('/')
 @app.route('/index')
 def index():
-    # db_sess = db_session.create_session()
-    # news = db_sess.query(Jobs).filter(Jobs.is_private != True)
-    return render_template("index.html")
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).all()
+    return render_template("index.html", jobs=jobs)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -96,9 +96,9 @@ def user_add():
 
 def user_get():
     db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == 1).first()
-    for news in user.news:
-        print(news.created_date)
+    jobs = db_sess.query(Jobs).all()
+    for job in jobs:
+        print(job.team_leader.surname, job.team_leader.name, job.work_size, job.is_finished)
 
 
 def jobs_add():
@@ -115,7 +115,7 @@ def jobs_add():
 
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
-    user_add()
+    # user_add()
     # user_get()
-    jobs_add()
+    # jobs_add()
     app.run(port=8080, host='127.0.0.1')
