@@ -102,27 +102,20 @@ def user_get():
 
 
 def jobs_add():
-    pass
-    # db_sess = db_session.create_session()
-    #
-    # news = News(title="Первая новость", content="Привет блог!",
-    #             user_id=1, is_private=False)
-    # user = db_sess.query(User).filter(User.email == "email@email.ru").first()
-    # news2 = News(title="Вторая новость", content="Уже вторая запись!",
-    #              user=user, is_private=False)
-    #
-    # news3 = News(title="Вторая новость", content="Уже вторая запись!",
-    #              user_id=2, is_private=False)
-    #
-    # db_sess.add(news)
-    # db_sess.add(news2)
-    # db_sess.add(news3)
-    # db_sess.commit()
+    db_sess = db_session.create_session()
+    job = Jobs()
+    job.team_leader_id = 1
+    job.job = 'deployment of residential modules 1 and 2'
+    job.work_size = 15
+    job.collaborators = '2, 3'
+    job.is_finished = False
+    db_sess.add(job)
+    db_sess.commit()
 
 
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     user_add()
     # user_get()
-    # jobs_add()
+    jobs_add()
     app.run(port=8080, host='127.0.0.1')
