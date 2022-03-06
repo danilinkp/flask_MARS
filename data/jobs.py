@@ -26,4 +26,4 @@ class Jobs(SqlAlchemyBase, UserMixin, SerializerMixin):
                                     nullable=True)
     team_leader_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
 
-    team_leader = orm.relation('User')
+    user = orm.relation('User')
