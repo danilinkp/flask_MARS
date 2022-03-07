@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from data import db_session, jobs_api
 from data.jobs import Jobs
 from data.users import User
+from forms.jobsform import JobsForm
 from forms.loginform import LoginForm
 from forms.user import RegisterForm
 
@@ -68,6 +69,26 @@ def reqister():
     return render_template('register.html', title='Регистрация', form=form)
 
 
+@app.route('/jobs', methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = JobsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        jobs = Jobs()
+        jobs.title = form.title.data
+        jobs.team_leader_id = form.team_leader_id.data
+        jobs.work_size = form.work_size.data
+        jobs.collaborators = form.collaborators.data
+        jobs.is_finished = form.is_finished.data
+        current_user.news.append(jobs)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('jobs.html', title='Добавление работы',
+                           form=form)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -129,11 +150,11 @@ def user_add():
     db_sess.commit()
 
 
-# def user_get():
-#     db_sess = db_session.create_session()
-#     jobs = db_sess.query(Jobs).all()
-#     for job in jobs:
-#         print(job.team_leader.surname, job.team_leader.name, job.work_size, job.is_finished)
+def user_get():
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).all()
+    for job in jobs:
+        print(job.user.surname, job.user.name, job.work_size, job.is_finished)
 
 
 def jobs_add():
