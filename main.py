@@ -1,8 +1,9 @@
 from flask import Flask, url_for, request, render_template, make_response, jsonify
+from flask_restful import Api
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session, jobs_api
+from data import db_session, jobs_api, users_resource
 from data.jobs import Jobs
 from data.users import User
 from forms.jobsform import JobsForm
@@ -13,7 +14,12 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app)
+# для списка объектов
+api.add_resource(users_resource.UsersListResource, '/api/v2/users')
 
+# для одного объекта
+api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
 
 @app.route('/')
 @app.route('/index')
