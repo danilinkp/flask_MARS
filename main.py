@@ -3,6 +3,7 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from data import db_session, jobs_api
+# from data.departments import Department
 from data.jobs import Jobs
 from data.users import User
 from forms.jobsform import JobsForm
@@ -26,6 +27,18 @@ def index():
         jobs = db_sess.query(Jobs).filter(Jobs.is_finished != True)
 
     return render_template("index.html", jobs=jobs)
+
+
+# @app.route('/departments')
+# def department():
+#     db_sess = db_session.create_session()
+#     if current_user.is_authenticated:
+#         departments = db_sess.query(Department).filter(
+#             (Department.user == current_user))
+#     else:
+#         departments = db_sess.query(Department)
+#
+#     return render_template("departments.html", departments=departments)
 
 
 @login_manager.user_loader
@@ -207,8 +220,9 @@ def user_add():
 def user_get():
     db_sess = db_session.create_session()
     jobs = db_sess.query(Jobs).all()
+    print([job.team_leader_id for job in jobs])
     for job in jobs:
-        print(job.user.surname, job.user.name, job.work_size, job.is_finished)
+        print(job.team_leader_id)
 
 
 def jobs_add():
@@ -231,7 +245,7 @@ def not_found(error):
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     # user_add()
-    # user_get()
+    user_get()
     # jobs_add()
     app.register_blueprint(jobs_api.blueprint)
     app.run(port=8080, host='127.0.0.1')
