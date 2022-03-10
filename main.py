@@ -1,9 +1,9 @@
 from flask import Flask, url_for, request, render_template, make_response, jsonify
+from flask_restful import Api
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session, jobs_api
-# from data.departments import Department
+from data import db_session, jobs_api, users_resource
 from data.jobs import Jobs
 from data.users import User
 from forms.jobsform import JobsForm
@@ -14,7 +14,12 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app)
+# для списка объектов
+api.add_resource(users_resource.UsersListResource, '/api/v2/users')
 
+# для одного объекта
+api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
 
 @app.route('/')
 @app.route('/index')
@@ -27,18 +32,6 @@ def index():
         jobs = db_sess.query(Jobs).filter(Jobs.is_finished != True)
 
     return render_template("index.html", jobs=jobs)
-
-
-# @app.route('/departments')
-# def department():
-#     db_sess = db_session.create_session()
-#     if current_user.is_authenticated:
-#         departments = db_sess.query(Department).filter(
-#             (Department.user == current_user))
-#     else:
-#         departments = db_sess.query(Department)
-#
-#     return render_template("departments.html", departments=departments)
 
 
 @login_manager.user_loader
@@ -220,9 +213,8 @@ def user_add():
 def user_get():
     db_sess = db_session.create_session()
     jobs = db_sess.query(Jobs).all()
-    print([job.team_leader_id for job in jobs])
     for job in jobs:
-        print(job.team_leader_id)
+        print(job.user.surname, job.user.name, job.work_size, job.is_finished)
 
 
 def jobs_add():
@@ -245,7 +237,7 @@ def not_found(error):
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     # user_add()
-    user_get()
+    # user_get()
     # jobs_add()
     app.register_blueprint(jobs_api.blueprint)
     app.run(port=8080, host='127.0.0.1')
