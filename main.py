@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, url_for, request, render_template, make_response, jsonify
 from flask_restful import Api
 from werkzeug.exceptions import abort
@@ -237,4 +239,5 @@ def not_found(error):
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     app.register_blueprint(jobs_api.blueprint)
-    app.run(port=8080, host='0.0.0.0')
+    port = int(os.environ.get("PORT", 5000))
+    app.run(port=port, host='0.0.0.0')
