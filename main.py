@@ -236,8 +236,5 @@ def not_found(error):
 
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
-    # user_add()
-    # user_get()
-    # jobs_add()
     app.register_blueprint(jobs_api.blueprint)
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=8080, host='0.0.0.0')
