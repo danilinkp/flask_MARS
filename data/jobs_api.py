@@ -11,6 +11,19 @@ blueprint = flask.Blueprint(
 )
 
 
+@blueprint.route('/api/jobs')
+def get_jobs():
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).all()
+    return jsonify(
+        {
+            'jobs':
+                [item.to_dict(rules=('-user', '-user.jobs'))
+                 for item in jobs]
+        }
+    )
+
+
 @blueprint.route('/api/jobs/<int:jobs_id>', methods=['GET'])
 def get_one_job(jobs_id):
     db_sess = db_session.create_session()
@@ -20,19 +33,6 @@ def get_one_job(jobs_id):
     return jsonify(
         {
             'jobs': jobs.to_dict(rules=('-user', '-user.jobs'))
-        }
-    )
-
-
-@blueprint.route('/api/jobs')
-def get_jobs():
-    db_sess = db_session.create_session()
-    jobs = db_sess.query(Jobs).all()
-    return jsonify(
-        {
-            'jobs':
-                [item.to_dict(rules=('-user'))
-                 for item in jobs]
         }
     )
 
@@ -60,11 +60,29 @@ def create_jobs():
 
 
 @blueprint.route('/api/jobs/<int:jobs_id>', methods=['DELETE'])
-def delete_news(jobs_id):
+def delete_jobs(jobs_id):
     db_sess = db_session.create_session()
     jobs = db_sess.query(Jobs).get(jobs_id)
     if not jobs:
         return jsonify({'error': 'Not found'})
     db_sess.delete(jobs)
+    db_sess.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['PUT'])
+def edit_jobs(job_id):
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    elif not all(key in request.json for key in
+                 ['job', 'team_leader_id', 'work_size', 'collaborators', 'is_finished']):
+        return jsonify({'error': 'Bad request'})
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).get(job_id)
+    jobs.title = request.json['job'],
+    jobs.team_leader_id = request.json['team_leader_id'],
+    jobs.work_size = request.json['work_size'],
+    jobs.collaborators = request.json['collaborators'],
+    jobs.is_finished = request.json['is_finished']
     db_sess.commit()
     return jsonify({'success': 'OK'})
